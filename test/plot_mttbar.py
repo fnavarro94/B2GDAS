@@ -114,12 +114,12 @@ def plot_mttbar(argv) :
     	fpileup = ROOT.TFile.Open('purw.root', 'read')
                
     if options.pileup == "up":
-	    fpilup = ROOT.TFile.Open('purw_up.root','read')
+        fpileup = ROOT.TFile.Open('purw_up.root','read')
         histogramSuffix += '_pileup_Up'
 
     if options.pileup == "down":
 	    fpileup = ROOT.TFile.Open('purw_down.root','read')
-        histogramSuffix += '_pileup_Down'
+            histogramSuffix += '_pileup_Down'
     
     h_pileupWeight = fpileup.Get('pileup')
 
@@ -223,7 +223,7 @@ def plot_mttbar(argv) :
     tot_entries, count = 0, 0
     cut1, cut2, cut3, cut4 = 0 ,0 ,0 ,0
     eff_pass, eff_fail = 0, 0
-
+    dum_mttbar = 0.0
     for itree,t in enumerate(trees) :
 
         #if options.isData : 
@@ -272,9 +272,9 @@ def plot_mttbar(argv) :
         NearestAK4JetJECDnSys = array.array('f', [-1.])
         NearestAK4JetJERUpSys = array.array('f', [-1.])
         NearestAK4JetJERDnSys = array.array('f', [-1.])
-        SemiLeptRunNum        = array.array('f', [-1.])   
-        SemiLeptLumiNum     = array.array('f', [-1.])   
-        SemiLeptEventNum      = array.array('f', [-1.])   
+        SemiLeptRunNum        = array.array('L', [0])   
+        SemiLeptLumiNum     = array.array('L', [0])   
+        SemiLeptEventNum      = array.array('L', [0])   
 
 
         #if options.isData : 
@@ -371,7 +371,10 @@ def plot_mttbar(argv) :
         t.SetBranchStatus ('NearestAK4JetJERUpSys' , 1)
         t.SetBranchStatus ('NearestAK4JetJERDnSys' , 1)
         t.SetBranchStatus ('SemiLepNvtx' , 1)
-        
+        t.SetBranchStatus ('SemiLeptRunNum',1)
+        t.SetBranchStatus ('SemiLeptLumiNum',1)
+        t.SetBranchStatus ('SemiLeptEventNum',1)
+         
         entries = t.GetEntriesFast()
         tot_entries +=entries
 
@@ -497,6 +500,13 @@ def plot_mttbar(argv) :
             # number of top and bottom tags
             mttbar = -1.0
             mttbar = calculate_invariant_m()
+            
+            if dum_mttbar < mttbar:
+                dum_mttbar = mttbar;
+            
+            if mttbar > 4000:
+		print  "Run "+  str(SemiLeptRunNum[0]) + " Lumi " + str(SemiLeptLumiNum[0] ) +"  event "+str( SemiLeptEventNum[0])+ " mass " + str(mttbar)
+
             # Filling plots 
             
             count +=1
@@ -551,7 +561,7 @@ def plot_mttbar(argv) :
     control_pass = float(eff_pass)#/float(tot_entries)
     print options.file_out, " : ", count, "/", tot_entries, ", Percentage:", round(float(count)/(float(tot_entries+1))*100,3), "%", \
      "Cut_flow: [", cut1, cut2, cut3, cut4, "]", " Control Efficiency:", control_pass
-
+    print dum_mttbar
     nm = options.file_in
     #fh.write(nm[71:])
     fh.write(options.file_in)
